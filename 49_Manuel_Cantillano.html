@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Tarea1</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      background: #519fe3;
+      padding: 20px;
+      color: #1a3c6e;
+    }
+    h2 {
+      margin-bottom: 15px;
+      color: #124a87;
+    }
+    video, canvas {
+      width: 70%;
+      max-width: 420px;
+      border: 3px solid #1b5faa;
+      border-radius: 10px;
+      margin: 15px 0;
+      box-shadow: 0 3px 8px rgba(0, 0, 0, 0.2);
+    }
+    #btn_guardar {
+      padding: 10px 16px;
+      background: #1b5faa;
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 14px;
+      margin-top: 10px;
+    }
+    #btn_guardar:hover {
+      background: #14497d;
+    }
+    #aviso {
+      margin-top: 18px;
+      font-weight: bold;
+      color: #14497d;
+    }
+  </style>
+</head>
+<body>
+
+  <h2>Tarea 1: Fotopor voz</h2>
+  <h2>¡ Color del ganador, que viva el Azul!</h2>
+  <video id="cam_live" autoplay></video>
+  <canvas id="lienzo"></canvas>
+  <br>
+  <button id="btn_guardar">Guardar la foto</button>
+  <p id="aviso">Deci FOTO para que la foto se tome</p>
+
+  <script>
+    const camLive = document.getElementById("cam_live");
+    const lienzo = document.getElementById("lienzo");
+    const btnGuardar = document.getElementById("btn_guardar");
+    const aviso = document.getElementById("aviso");
+    const pinta = lienzo.getContext("2d");
+    navigator.mediaDevices.getUserMedia({ video: true })
+      .then(stream => camLive.srcObject = stream)
+     ;
+
+    const Recon = window.SpeechRecognition || window.webkitSpeechRecognition;
+    const voz = new Recon();
+    voz.lang = "es-ES";
+    voz.continuous = true;
+    voz.interimResults = false;
+
+    voz.onresult = (e) => {
+      let ultimo = e.results[e.results.length - 1][0].transcript.trim().toLowerCase();
+      aviso.textContent = "Usted dijo: " + ultimo;
+      if (ultimo.includes("foto")) {
+        sacarFoto();
+      }
+    };
+    voz.start();
+    function sacarFoto() {
+      lienzo.width = camLive.videoWidth;
+      lienzo.height = camLive.videoHeight;
+      pinta.drawImage(camLive, 0, 0, lienzo.width, lienzo.height);
+      aviso.textContent = "¡Que Guapo ufff!";
+    }
+    btnGuardar.addEventListener("click", () => {
+      let link = document.createElement("a");
+      link.download = "captura.jpg";
+      link.href = lienzo.toDataURL("image/jpeg");
+      link.click();
+    });
+  </script>
+
+</body>
+</html>
