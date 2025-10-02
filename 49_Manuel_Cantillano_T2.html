@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Chuck Norris Jokes</title>
+    <style>
+        body {
+            font-family: Arial;
+            background: linear-gradient(45deg, #faa753, #5a3911);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .cajaJoke {
+            background-color: #b17e51;
+            border: 3px solid #391e03;
+            border-radius: 14px;
+            padding: 30px;
+            width: 80%;
+            height: 80%;
+            box-shadow: 4px 4px 15px rgba(0,0,0,0.3);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+        .titulo {
+            color: #f3e2d2;
+            margin-bottom: 20px;
+            font-size: 28px;
+        }
+        .btnChiste {
+            background-color: #e67300;
+            color: #fff;
+            border: none;
+            padding: 15px 25px;
+            font-size: 18px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: transform 0.2s ease, background 0.3s ease;
+        }
+        .btnChiste:hover {
+            background-color: #cc6600;
+            transform: scale(1.05);
+        }
+        .textoSalida {
+            margin-top: 30px;
+            font-size: 20px;
+            color: #333;
+            line-height: 1.6;
+            text-align: center;
+            max-width: 90%;
+        }
+    </style>
+</head>
+<body>
+    <div class="cajaJoke">
+        <h2 class="titulo">🐵Atrapados por la Risa🐵</h2>
+        <button id="btnChiste" class="btnChiste">Nuevo chiste</button>
+        <p class="textoSalida" id="salida"></p>
+    </div>
+    <script>
+        const btnChiste = document.getElementById("btnChiste");
+        const salida = document.getElementById("salida");
+        function traerChiste() {
+            fetch("https://api.chucknorris.io/jokes/random")
+                .then(r => r.json())
+                .then(data => {
+                    salida.textContent = data.value;
+                })
+                .catch(() => {
+                    salida.textContent = "Ocurrió un error, inténtalo otra vez.";
+                });
+        }
+        btnChiste.addEventListener("click", traerChiste);
+    </script>
+</body>
+</html>
