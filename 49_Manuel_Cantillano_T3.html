@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mini Cantidex</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      background: #011628;
+      margin: 0;
+      padding: 20px;
+    }
+    h1 { color: #875207; }
+    #buscador {
+      margin-bottom: 20px;
+      padding: 5px;
+      width: 200px;
+    }
+    #pokemones {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+      gap: 15px;
+      margin-top: 20px;
+    }
+    .carta {
+      background: #0669a2;
+      border: 1px solid #ddd;
+      border-radius: 10px;
+      padding: 10px;
+      box-shadow: 2px 2px 6px rgba(0,0,0,0.1);
+    }
+    .carta img {
+      width: 100px;
+      cursor: pointer;
+    }
+    .controles {
+      margin-top: 20px;
+    }
+    button {
+      padding: 8px 15px;
+      margin: 0 5px;
+      background: #457b9d;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    button:hover { background: #1d3557; }
+  </style>
+</head>
+<body>
+  <h1>Mini Cantidex</h1>
+  <input type="text" id="buscador" placeholder="">
+  <div id="pokemones"></div>
+  <div class="controles">
+    <button onclick="cargarPagina(pagina-1)">Anterior</button>
+    <button onclick="cargarPagina(pagina+1)">Siguiente</button>
+  </div>
+  <script>
+    let pagina = 1;
+    const limite = 12;
+    async function cargarPagina(num) {
+      if (num < 1) return;
+      pagina = num;
+      const offset = (pagina-1) * limite;
+      const url = `https://pokeapi.co/api/v2/pokemon?limit=${limite}&offset=${offset}`;
+      const resp = await fetch(url);
+      const data = await resp.json();
+      mostrarPokemones(data.results);
+    }
+    async function mostrarPokemones(lista) {
+      const contenedor = document.getElementById("pokemones");
+      contenedor.innerHTML = "";
+      for (let poke of lista) {
+        const resp = await fetch(poke.url);
+        const data = await resp.json();
+        const carta = document.createElement("div");
+        carta.className = "carta";
+        carta.innerHTML = `
+          <h3>${data.name}</h3>
+          <img src="${data.sprites.front_default}" alt="${data.name}">
+        `;
+        carta.querySelector("img").onclick = () => {
+          window.open(data.sprites.front_default, "_blank");
+        };
+        contenedor.appendChild(carta);
+      }
+    }
+    document.getElementById("buscador").addEventListener("input", async (e) => {
+      const nombre = e.target.value.toLowerCase();
+      if (nombre === "") {
+        cargarPagina(pagina);
+        return;
+      }
+      try {
+        const resp = await fetch(`https://pokeapi.co/api/v2/pokemon/${nombre}`);
+        if (!resp.ok) throw new Error("No encontrado");
+        const data = await resp.json();
+        const contenedor = document.getElementById("pokemones");
+        contenedor.innerHTML = `
+          <div class="carta">
+            <h3>${data.name}</h3>
+            <img src="${data.sprites.front_default}" alt="${data.name}">
+          </div>
+        `;
+        contenedor.querySelector("img").onclick = () => {
+          window.open(data.sprites.front_default, "_blank");
+        };
+      } catch {
+        document.getElementById("pokemones").innerHTML = "<p>Pokémon no encontrado</p>";
+      }
+    });
+    cargarPagina(1);
+  </script>
+</body>
+</html>
